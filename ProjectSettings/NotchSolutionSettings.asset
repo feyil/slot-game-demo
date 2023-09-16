@@ -16,7 +16,7 @@
             ]
         }
     ],
-    "<EnableSimulation>k__BackingField": true,
+    "<EnableSimulation>k__BackingField": false,
     "<FlipOrientation>k__BackingField": false,
     "<PrefabModeOverlayColor>k__BackingField": {
         "r": 0.296999990940094,
