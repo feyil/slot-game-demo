@@ -15,8 +15,7 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private SpinColumnController m_middleSpinController;
         [SerializeField] private SpinColumnController m_rightSpinController;
 
-        [Title("Parameters")] 
-        [SerializeField] private float DelayMin = 0.1f;
+        [Title("Parameters")] [SerializeField] private float DelayMin = 0.1f;
         [SerializeField] private float DelayMax = 0.3f;
 
         [SerializeField] private int _completeCount;
@@ -32,7 +31,7 @@ namespace _game.Scripts.SlotComponent
         {
             _completeCount = 0;
             m_spinButton.interactable = false;
-            
+
             switch (spinId)
             {
                 case SpinId.A_WILD_BONUS:
@@ -78,7 +77,17 @@ namespace _game.Scripts.SlotComponent
             var delayRight = delayMiddle + Random.Range(DelayMin, DelayMax);
 
             m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
-            m_rightSpinController.Spin(right, OnComplete, delayRight);
+
+            var isReward = left == middle && middle == right;
+            var animIndex = Random.Range(0, 2);
+
+            var animId = ColumnAnimationConfigId.Fast;
+            if (isReward)
+            {
+                animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
+            }
+
+            m_rightSpinController.Spin(right, OnComplete, delayRight, animId);
         }
 
         private void OnComplete(SpinColumnController spinColumnController)

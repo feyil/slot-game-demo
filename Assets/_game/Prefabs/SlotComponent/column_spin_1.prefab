@@ -71,10 +71,9 @@ MonoBehaviour:
   - {fileID: 3720123062812166536}
   - {fileID: 8742840482468277996}
   - {fileID: 2244027084444634331}
-  m_startSpinLoopCount: 5
-  m_startSpinDuration: 1
-  m_stopSpinLoopCount: 1
-  m_stopSpinDuration: 0.5
+  m_fastAnimation: {fileID: 11400000, guid: 46397accabfde464982b866bbccf26bc, type: 2}
+  m_normalAnimation: {fileID: 11400000, guid: 15face91e5990492f90f78efa71a94d4, type: 2}
+  m_slowAnimation: {fileID: 11400000, guid: c2f8e5a63aa8344ed803e5c24058c65f, type: 2}
 --- !u!1001 &1626038705376167955
 PrefabInstance:
   m_ObjectHideFlags: 0
