@@ -18,7 +18,7 @@ namespace _game.Scripts.SlotComponent
         private float _spinFillAmount;
 
         [Button]
-        public void Spin(SpinColumnId spinColumnId, Action onComplete)
+        public void Spin(SpinColumnId spinColumnId, Action<SpinColumnController> onComplete)
         {
             var targetValue1 = _spinFillAmount + m_startSpinLoopCount;
             var startTween = DOTween.To(() => _spinFillAmount, (value) =>
@@ -43,7 +43,7 @@ namespace _game.Scripts.SlotComponent
             var seq = DOTween.Sequence();
             seq.Append(startTween);
             seq.Append(stopTween);
-            seq.OnComplete(() => { onComplete?.Invoke(); });
+            seq.OnComplete(() => { onComplete?.Invoke(this); });
         }
 
         private float GetSpinFillAmount(SpinColumnId spinColumnId)

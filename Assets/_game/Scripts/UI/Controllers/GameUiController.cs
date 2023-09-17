@@ -1,18 +1,17 @@
 using _game.Scripts.Core.Ui;
+using _game.Scripts.SlotComponent;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace _game.Scripts.Ui.Controllers
 {
-    public class GameUiController : UiController, IPointerClickHandler
+    public class GameUiController : UiController
     {
-        public override void Show()
-        {
-            base.Show();
-        }
+        [SerializeField] private SlotMachineController m_slotMachine;
 
-        public void OnPointerClick(PointerEventData eventData)
+        public SlotMachineController GetSlotMachine()
         {
-            Hide();
+            return m_slotMachine;
         }
     }
 }

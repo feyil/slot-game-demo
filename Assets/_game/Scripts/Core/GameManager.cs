@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _game.Scripts.Core.Ui;
+using _game.Scripts.SlotComponent;
 using _game.Scripts.SpinSystem;
 using _game.Scripts.SpinSystem.Data;
 using _game.Scripts.Ui.Controllers;
@@ -13,8 +14,8 @@ namespace _game.Scripts.Core
     {
         [SerializeField] private List<SpinData> m_spinData;
 
-        [Title("Runtime References")]
-        [SerializeReference] private SpinManager _spinManager;
+        [Title("Runtime References")] [SerializeReference]
+        private SpinManager _spinManager;
 
         private void Awake()
         {
@@ -35,7 +36,7 @@ namespace _game.Scripts.Core
         {
             StartGame();
         }
-        
+
         [Button]
         private void StartGame()
         {
@@ -47,10 +48,19 @@ namespace _game.Scripts.Core
             var spinManager = new SpinManager(spinResultGenerator, spinSaveManager, spinData);
             spinManager.Start();
             _spinManager = spinManager;
-            
-            UiManager.Get<GameUiController>().Show();
+
+            var gameUiController = UiManager.Get<GameUiController>();
+            var slotMachine = gameUiController.GetSlotMachine();
+            slotMachine.Initialize(OnSpin);
         }
-        
+
+        private void OnSpin(SlotMachineController slotMachineController)
+        {
+            var spinResult = _spinManager.Spin();
+            Debug.Log($"[GAME_MANAGER] SpinResult:{spinResult.SpinCount}:{spinResult.Spin}");
+            slotMachineController.Spin(spinResult.Spin);
+        }
+
         private List<SpinData> GetSpinData()
         {
             // Data can be provided from different sources (Scriptable Object, Server etc.)
