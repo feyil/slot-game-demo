@@ -10,6 +10,7 @@ namespace _game.Scripts.SlotComponent
     public class SlotMachineController : MonoBehaviour
     {
         [SerializeField] private Button m_spinButton;
+        [SerializeField] private CoinParticleController m_coinParticleController;
 
         [SerializeField] private SpinColumnController m_leftSpinController;
         [SerializeField] private SpinColumnController m_middleSpinController;
@@ -19,6 +20,9 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private float DelayMax = 0.3f;
 
         [SerializeField] private int _completeCount;
+
+        private bool _isReward;
+        private SpinColumnId _rewardId;
 
         public void Initialize(Action<SlotMachineController> onSpin)
         {
@@ -79,6 +83,9 @@ namespace _game.Scripts.SlotComponent
             m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
 
             var isReward = left == middle && middle == right;
+            _isReward = isReward;
+            _rewardId = left;
+
             var animIndex = Random.Range(0, 2);
 
             var animId = ColumnAnimationConfigId.Fast;
@@ -101,8 +108,13 @@ namespace _game.Scripts.SlotComponent
 
         private void OnAllComplete()
         {
-            m_spinButton.interactable = true;
             Debug.Log("[SLOT_MACHINE_CONTROLLER] All columns completed.");
+            m_spinButton.interactable = true;
+
+            if (_isReward)
+            {
+                m_coinParticleController.Play(_rewardId);
+            }
         }
     }
 }

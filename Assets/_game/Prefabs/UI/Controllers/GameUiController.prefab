@@ -212,14 +212,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 388430323652898791}
     m_Modifications:
-    - target: {fileID: 8157448177207259101, guid: 56932bd692c394033949c06901cbe46f,
+    - target: {fileID: 7085347453236504246, guid: 56932bd692c394033949c06901cbe46f,
         type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157448177207259101, guid: 56932bd692c394033949c06901cbe46f,
-        type: 3}
-      propertyPath: m_SizeDelta.y
+      propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8157448178150181986, guid: 56932bd692c394033949c06901cbe46f,
