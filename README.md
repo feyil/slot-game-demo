@@ -1,2 +1,2 @@
-# unity-game-template
-Basic unity game project template to kick-start projects.
+# slot-game-demo
+Basic Slot Game Core Mechanic
