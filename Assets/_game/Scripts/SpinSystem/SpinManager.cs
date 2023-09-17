@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using _game.Scripts.SpinSystem.Data;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace _game.Scripts.SpinSystem
 {
@@ -37,8 +38,39 @@ namespace _game.Scripts.SpinSystem
         private SpinResultPref GetNewResults()
         {
             var newResults = _spinResultGenerator.GenerateSpinResults(_spinDataList);
+            LogSpinResult(newResults);
+            
             var spinResultPref = _spinSaveManager.SaveSpinResult(newResults);
             return spinResultPref;
+        }
+
+        private void LogSpinResult(List<SpinResult> spinResultList)
+        {
+            var spinCountDict = new Dictionary<SpinId, List<int>>();
+            foreach (var spinResult in spinResultList)
+            {
+                if (!spinCountDict.ContainsKey(spinResult.Spin))
+                {
+                    spinCountDict.Add(spinResult.Spin, new List<int>());
+                }
+
+                spinCountDict[spinResult.Spin].Add(spinResult.SpinCount);
+            }
+
+            var totalCount = 0;
+            foreach (var entry in spinCountDict)
+            {
+                var valueString = "";
+                foreach (var value in entry.Value)
+                {
+                    valueString += value + ";";
+                }
+
+                totalCount += entry.Value.Count;
+                Debug.Log($"[SPIN_MANAGER] SpinId:{entry.Key}::Count:{entry.Value.Count}::Occurence:{valueString}");
+            }
+            
+            Debug.Log($"[SPIN_MANAGER] Total count: {totalCount}");
         }
 
         [Button]
