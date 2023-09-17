@@ -3,26 +3,36 @@ using _game.Scripts.SpinSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 namespace _game.Scripts.SlotComponent
 {
     public class SlotMachineController : MonoBehaviour
     {
         [SerializeField] private Button m_spinButton;
-        
+
         [SerializeField] private SpinColumnController m_leftSpinController;
         [SerializeField] private SpinColumnController m_middleSpinController;
         [SerializeField] private SpinColumnController m_rightSpinController;
+
+        [Title("Parameters")] 
+        [SerializeField] private float DelayMin = 0.1f;
+        [SerializeField] private float DelayMax = 0.3f;
+
+        [SerializeField] private int _completeCount;
 
         public void Initialize(Action<SlotMachineController> onSpin)
         {
             m_spinButton.onClick.RemoveAllListeners();
             m_spinButton.onClick.AddListener(() => onSpin?.Invoke(this));
         }
-        
+
         [Button]
         public void Spin(SpinId spinId)
         {
+            _completeCount = 0;
+            m_spinButton.interactable = false;
+            
             switch (spinId)
             {
                 case SpinId.A_WILD_BONUS:
@@ -63,12 +73,27 @@ namespace _game.Scripts.SlotComponent
         private void Spin(SpinColumnId left, SpinColumnId middle, SpinColumnId right)
         {
             m_leftSpinController.Spin(left, OnComplete);
-            m_middleSpinController.Spin(middle, OnComplete);
-            m_rightSpinController.Spin(right, OnComplete);
+
+            var delayMiddle = Random.Range(DelayMin, DelayMax);
+            var delayRight = delayMiddle + Random.Range(DelayMin, DelayMax);
+
+            m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
+            m_rightSpinController.Spin(right, OnComplete, delayRight);
         }
 
         private void OnComplete(SpinColumnController spinColumnController)
         {
+            _completeCount++;
+            if (_completeCount == 3)
+            {
+                OnAllComplete();
+            }
+        }
+
+        private void OnAllComplete()
+        {
+            m_spinButton.interactable = true;
+            Debug.Log("[SLOT_MACHINE_CONTROLLER] All columns completed.");
         }
     }
 }

@@ -612,6 +612,8 @@ MonoBehaviour:
   m_leftSpinController: {fileID: 2227513217655882421}
   m_middleSpinController: {fileID: 8383143632380792039}
   m_rightSpinController: {fileID: 2227513217672967474}
+  DelayMin: 0.1
+  DelayMax: 0.3
 --- !u!1 &8157448178221704324
 GameObject:
   m_ObjectHideFlags: 0
