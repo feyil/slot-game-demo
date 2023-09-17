@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using _game.Scripts.Core.Ui;
 using _game.Scripts.SpinSystem;
 using _game.Scripts.SpinSystem.Data;
+using _game.Scripts.Ui.Controllers;
 using _game.Scripts.Utility;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -46,6 +47,8 @@ namespace _game.Scripts.Core
             var spinManager = new SpinManager(spinResultGenerator, spinSaveManager, spinData);
             spinManager.Start();
             _spinManager = spinManager;
+            
+            UiManager.Get<GameUiController>().Show();
         }
         
         private List<SpinData> GetSpinData()
