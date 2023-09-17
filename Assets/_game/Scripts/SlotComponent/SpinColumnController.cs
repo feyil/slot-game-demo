@@ -8,6 +8,7 @@ namespace _game.Scripts.SlotComponent
     public class SpinColumnController : MonoBehaviour
     {
         [SerializeField] private RectTransform m_rectTransform;
+        [SerializeField] private ItemView[] m_itemViewArray;
 
         [Title("Parameters")] [SerializeField] private int m_startSpinLoopCount = 5;
         [SerializeField] private float m_startSpinDuration = 1f;
@@ -42,7 +43,9 @@ namespace _game.Scripts.SlotComponent
 
             var seq = DOTween.Sequence();
             seq.AppendInterval(delay);
+            seq.AppendCallback(() => SetBlur(true));
             seq.Append(startTween);
+            seq.AppendCallback(() => SetBlur(false));
             seq.Append(stopTween);
             seq.OnComplete(() => { onComplete?.Invoke(this); });
         }
@@ -81,6 +84,14 @@ namespace _game.Scripts.SlotComponent
             var pos = m_rectTransform.anchoredPosition;
             pos.y = y;
             m_rectTransform.anchoredPosition = pos;
+        }
+
+        private void SetBlur(bool state)
+        {
+            foreach (var itemView in m_itemViewArray)
+            {
+                itemView.SetBlur(state);
+            }
         }
     }
 }
