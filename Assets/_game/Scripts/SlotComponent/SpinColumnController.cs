@@ -52,15 +52,15 @@ namespace _game.Scripts.SlotComponent
             switch (spinColumnId)
             {
                 case SpinColumnId.Jackpot:
-                    return 1f;
+                    return 0f;
                 case SpinColumnId.Seven:
-                    return 0.8f;
-                case SpinColumnId.Wild:
-                    return 0.6f;
-                case SpinColumnId.A:
-                    return 0.4f;
-                case SpinColumnId.Bonus:
                     return 0.2f;
+                case SpinColumnId.Wild:
+                    return 0.4f;
+                case SpinColumnId.A:
+                    return 0.6f;
+                case SpinColumnId.Bonus:
+                    return 0.8f;
             }
 
             Debug.LogException(new Exception("SpinColumnId doesnt match anything"));
@@ -71,7 +71,7 @@ namespace _game.Scripts.SlotComponent
         private void SetNormalized(float t)
         {
             t -= Mathf.Floor(t);
-            var posY = Mathf.Lerp(110, 1160, t);
+            var posY = Mathf.Lerp(110, 1160, 1 - t);
             SetAnchorPosY(posY);
         }
 

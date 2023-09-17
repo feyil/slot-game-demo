@@ -58,6 +58,7 @@ namespace _game.Scripts.Core
         {
             var spinResult = _spinManager.Spin();
             Debug.Log($"[GAME_MANAGER] SpinResult:{spinResult.SpinCount}:{spinResult.Spin}");
+            
             slotMachineController.Spin(spinResult.Spin);
         }
 
