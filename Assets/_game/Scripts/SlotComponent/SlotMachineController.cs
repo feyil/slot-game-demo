@@ -89,7 +89,7 @@ namespace _game.Scripts.SlotComponent
             var animIndex = Random.Range(0, 2);
 
             var animId = ColumnAnimationConfigId.Fast;
-            if (isReward)
+            if (left == middle)
             {
                 animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
             }
