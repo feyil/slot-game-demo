@@ -2,7 +2,6 @@ using System;
 using _game.Scripts.SpinSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace _game.Scripts.SlotComponent
@@ -39,34 +38,34 @@ namespace _game.Scripts.SlotComponent
             
             switch (spinId)
             {
-                case SpinId.A_WILD_BONUS:
+                case SpinId.AWildBonus:
                     Spin(SpinColumnId.A, SpinColumnId.Wild, SpinColumnId.Bonus);
                     break;
-                case SpinId.WILD_WILD_SEVEN:
+                case SpinId.WildWildSeven:
                     Spin(SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Seven);
                     break;
-                case SpinId.JACKPOT_JACKPOT_A:
+                case SpinId.JackpotJackpotA:
                     Spin(SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.A);
                     break;
-                case SpinId.WILD_BONUS_A:
+                case SpinId.WildBonusA:
                     Spin(SpinColumnId.Wild, SpinColumnId.Bonus, SpinColumnId.A);
                     break;
-                case SpinId.BONUS_A_JACKPOT:
+                case SpinId.BonusAJackpot:
                     Spin(SpinColumnId.Bonus, SpinColumnId.A, SpinColumnId.Jackpot);
                     break;
-                case SpinId.A_A_A:
+                case SpinId.AAA:
                     Spin(SpinColumnId.A, SpinColumnId.A, SpinColumnId.A);
                     break;
-                case SpinId.BONUS_BONUS_BONUS:
+                case SpinId.BonusBonusBonus:
                     Spin(SpinColumnId.Bonus, SpinColumnId.Bonus, SpinColumnId.Bonus);
                     break;
-                case SpinId.SEVEN_SEVEN_SEVEN:
+                case SpinId.SevenSevenSeven:
                     Spin(SpinColumnId.Seven, SpinColumnId.Seven, SpinColumnId.Seven);
                     break;
-                case SpinId.WILD_WILD_WILD:
+                case SpinId.WildWildWild:
                     Spin(SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Wild);
                     break;
-                case SpinId.JACKPOT_JACKPOT_JACKPOT:
+                case SpinId.JackpotJackpotJackpot:
                     Spin(SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.Jackpot);
                     break;
                 default:

@@ -69,52 +69,52 @@ namespace _game.Scripts.Core
             {
                 new()
                 {
-                    Spin = SpinId.A_WILD_BONUS,
+                    Spin = SpinId.AWildBonus,
                     Percentage = 13
                 },
                 new()
                 {
-                    Spin = SpinId.WILD_WILD_SEVEN,
+                    Spin = SpinId.WildWildSeven,
                     Percentage = 13
                 },
                 new()
                 {
-                    Spin = SpinId.JACKPOT_JACKPOT_A,
+                    Spin = SpinId.JackpotJackpotA,
                     Percentage = 13
                 },
                 new()
                 {
-                    Spin = SpinId.WILD_BONUS_A,
+                    Spin = SpinId.WildBonusA,
                     Percentage = 13
                 },
                 new()
                 {
-                    Spin = SpinId.BONUS_A_JACKPOT,
+                    Spin = SpinId.BonusAJackpot,
                     Percentage = 0
                 },
                 new()
                 {
-                    Spin = SpinId.A_A_A,
+                    Spin = SpinId.AAA,
                     Percentage = 9
                 },
                 new()
                 {
-                    Spin = SpinId.BONUS_BONUS_BONUS,
+                    Spin = SpinId.BonusBonusBonus,
                     Percentage = 8
                 },
                 new()
                 {
-                    Spin = SpinId.SEVEN_SEVEN_SEVEN,
+                    Spin = SpinId.SevenSevenSeven,
                     Percentage = 20
                 },
                 new()
                 {
-                    Spin = SpinId.WILD_WILD_WILD,
+                    Spin = SpinId.WildWildWild,
                     Percentage = 6
                 },
                 new()
                 {
-                    Spin = SpinId.JACKPOT_JACKPOT_JACKPOT,
+                    Spin = SpinId.JackpotJackpotJackpot,
                     Percentage = 5
                 }
             };
