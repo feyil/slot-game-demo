@@ -34,7 +34,7 @@ namespace _game.Scripts.SlotComponent
         public void Spin(SpinId spinId)
         {
             _completeCount = 0;
-            m_spinButton.interactable = false;
+            // m_spinButton.interactable = false;
 
             switch (spinId)
             {

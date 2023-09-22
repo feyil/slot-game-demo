@@ -16,36 +16,36 @@ MonoBehaviour:
     StartSpinLoopCount: 5
     StartSpinDuration: 1
     StopSpinLoopCount: 1
-    StopSpinDuration: 5
+    StopSpinDuration: 0.1
     StopCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 1.3325546
-        outSlope: 1.3325546
-        tangentMode: 34
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0.33333334
+        outWeight: 0
       - serializedVersion: 3
-        time: 0.7822725
-        value: 1.0424209
-        inSlope: 0.56885993
-        outSlope: 0.56885993
-        tangentMode: 34
+        time: 0.10920045
+        value: 0.5344446
+        inSlope: 1.3786911
+        outSlope: 1.3786911
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0.53428406
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
         value: 1
-        inSlope: -0.19483468
-        outSlope: -0.19483468
-        tangentMode: 34
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
