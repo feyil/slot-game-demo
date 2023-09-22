@@ -80,7 +80,7 @@ namespace _game.Scripts.SlotComponent
             var delayMiddle = Random.Range(DelayMin, DelayMax);
             var delayRight = delayMiddle + Random.Range(DelayMin, DelayMax);
 
-            m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
+            // m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
 
             var isReward = left == middle && middle == right;
             _isReward = isReward;
@@ -94,7 +94,7 @@ namespace _game.Scripts.SlotComponent
                 animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
             }
 
-            m_rightSpinController.Spin(right, OnComplete, delayRight, animId);
+            // m_rightSpinController.Spin(right, OnComplete, delayRight, animId);
         }
 
         private void OnComplete(SpinColumnController spinColumnController)

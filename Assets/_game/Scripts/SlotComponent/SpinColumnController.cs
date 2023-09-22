@@ -24,6 +24,7 @@ namespace _game.Scripts.SlotComponent
 
     public class SpinColumnController : MonoBehaviour
     {
+        [SerializeField] private float m_itemHeight;
         [SerializeField] private RectTransform m_rectTransform;
         [SerializeField] private ItemView[] m_itemViewArray;
 
@@ -40,10 +41,49 @@ namespace _game.Scripts.SlotComponent
             var config = GetConfig(animationConfigId);
 
             var targetValue1 = _spinFillAmount + config.StartSpinLoopCount;
+            var delta = 0f;
+            var isFirst = true;
+            var counter = m_itemViewArray.Length;
+            var isResetTime = false;
+            var lastValue = 0f;
             var startTween = DOTween.To(() => _spinFillAmount, (value) =>
             {
+                delta += Mathf.Abs(value - _spinFillAmount);
+
                 _spinFillAmount = value;
                 SetNormalized(_spinFillAmount);
+
+                var offset = isFirst ? 0.165f : 0.33f;
+                if (delta >= offset && counter >= 1)
+                {
+                    isFirst = false;
+                    delta = 0f;
+                    counter -= 1;
+                    // Debug.Log(GetNormalizedPosition());
+                    
+                    var lastItem = m_itemViewArray[counter];
+
+                    var lastY = lastItem.GetComponent<RectTransform>().anchoredPosition.y;
+                    lastItem.GetComponent<RectTransform>().DOAnchorPosY(lastY + m_itemHeight * 3, 0f);
+                }
+
+                isResetTime = GetNormalizedPosition() - lastValue <= 0f;
+                lastValue = GetNormalizedPosition();
+                
+                // Debug.Log(GetNormalizedPosition());
+                if (counter <= 0 && GetNormalizedPosition() >= 0 && isResetTime)
+                {
+                    for (var index = 0; index < m_itemViewArray.Length; index++)
+                    {
+                        var itemView = m_itemViewArray[index];
+                        SetAnchorPosY(itemView.GetComponent<RectTransform>(), m_itemHeight * (1 - index));
+                    }
+
+                    counter = m_itemViewArray.Length;
+                    Debug.Log("Reset");
+                    isResetTime = false;
+                }
+                
             }, targetValue1, config.StartSpinDuration).SetEase(Ease.Linear);
 
             // 5.2
@@ -54,20 +94,20 @@ namespace _game.Scripts.SlotComponent
 
             var targetValue2 = targetValue1 + fractionalPart + config.StopSpinLoopCount +
                                GetSpinFillAmount(spinColumnId);
-            var stopTween = DOTween.To(() => _spinFillAmount, (value) =>
-            {
-                _spinFillAmount = value;
-                SetNormalized(_spinFillAmount);
-            }, targetValue2, config.StopSpinDuration);
+            // var stopTween = DOTween.To(() => _spinFillAmount, (value) =>
+            // {
+            //     _spinFillAmount = value;
+            //     SetNormalized(_spinFillAmount);
+            // }, targetValue2, config.StopSpinDuration);
 
-            stopTween.SetEase(config.StopCurve);
+            // stopTween.SetEase(config.StopCurve);
 
             var seq = DOTween.Sequence();
             seq.AppendInterval(delay);
             seq.AppendCallback(() => SetBlur(true));
             seq.Append(startTween);
             seq.AppendCallback(() => SetBlur(false));
-            seq.Append(stopTween);
+            // seq.Append(stopTween);
             seq.OnComplete(() => { onComplete?.Invoke(this); });
         }
 
@@ -79,13 +119,11 @@ namespace _game.Scripts.SlotComponent
                 case SpinColumnId.Jackpot:
                     return 0f;
                 case SpinColumnId.Seven:
-                    return 0.2f;
+                    return 0.33f;
                 case SpinColumnId.Wild:
-                    return 0.4f;
-                case SpinColumnId.A:
-                    return 0.6f;
-                case SpinColumnId.Bonus:
-                    return 0.8f;
+                    return 0.66f;
+                // case SpinColumnId.Bonus:
+                // return 0.8f;
             }
 
             Debug.LogException(new Exception("SpinColumnId doesnt match anything"));
@@ -96,15 +134,21 @@ namespace _game.Scripts.SlotComponent
         private void SetNormalized(float t)
         {
             t -= Mathf.Floor(t);
-            var posY = Mathf.Lerp(110, 1160, 1 - t);
-            SetAnchorPosY(posY);
+            var posY = Mathf.Lerp(0, -m_itemHeight * 3, t);
+            SetAnchorPosY(m_rectTransform, posY);
         }
 
-        private void SetAnchorPosY(float y)
+        [Button]
+        private float GetNormalizedPosition()
         {
-            var pos = m_rectTransform.anchoredPosition;
+            return Mathf.InverseLerp(0, -m_itemHeight * 3, m_rectTransform.anchoredPosition.y);
+        }
+
+        private void SetAnchorPosY(RectTransform rectTransform, float y)
+        {
+            var pos = rectTransform.anchoredPosition;
             pos.y = y;
-            m_rectTransform.anchoredPosition = pos;
+            rectTransform.anchoredPosition = pos;
         }
 
         private void SetBlur(bool state)

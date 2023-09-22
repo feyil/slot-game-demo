@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Config:
     StartSpinLoopCount: 5
-    StartSpinDuration: 1
+    StartSpinDuration: 10
     StopSpinLoopCount: 1
     StopSpinDuration: 0.1
     StopCurve:
