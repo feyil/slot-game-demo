@@ -14,14 +14,13 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private SpinColumnController m_middleSpinController;
         [SerializeField] private SpinColumnController m_rightSpinController;
 
-        [Title("Parameters")] [SerializeField] private float DelayMin = 0.1f;
-        [SerializeField] private float DelayMax = 0.3f;
+        [Title("Parameters")] [SerializeField] private float m_delayMin = 0.1f;
+        [SerializeField] private float m_delayMax = 0.3f;
 
-        [SerializeField] private int _completeCount;
-
+        private int _completeCount;
         private bool _isReward;
         private SpinColumnId _rewardId;
-        
+
         private Action _onSpinStart;
         private Action _onSpinEnd;
 
@@ -35,7 +34,7 @@ namespace _game.Scripts.SlotComponent
         public void Spin(SpinId spinId)
         {
             _completeCount = 0;
-            
+
             switch (spinId)
             {
                 case SpinId.AWildBonus:
@@ -76,11 +75,11 @@ namespace _game.Scripts.SlotComponent
         private void Spin(SpinColumnId left, SpinColumnId middle, SpinColumnId right)
         {
             _onSpinStart?.Invoke();
-            
+
             m_leftSpinController.Spin(left, OnComplete);
 
-            var delayMiddle = Random.Range(DelayMin, DelayMax);
-            var delayRight = delayMiddle + Random.Range(DelayMin, DelayMax);
+            var delayMiddle = Random.Range(m_delayMin, m_delayMax);
+            var delayRight = delayMiddle + Random.Range(m_delayMin, m_delayMax);
 
             m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
 
@@ -111,12 +110,12 @@ namespace _game.Scripts.SlotComponent
         private void OnAllComplete()
         {
             Debug.Log("[SLOT_MACHINE_CONTROLLER] All columns completed.");
-           
+
             if (_isReward)
             {
                 m_coinParticleController.Play(_rewardId);
             }
-            
+
             _onSpinEnd?.Invoke();
         }
     }

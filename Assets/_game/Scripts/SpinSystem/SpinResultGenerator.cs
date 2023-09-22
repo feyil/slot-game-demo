@@ -9,7 +9,7 @@ namespace _game.Scripts.SpinSystem
     [Serializable]
     public class SpinResultGenerator
     {
-        private readonly int SAMPLE_SIZE = 100;
+        private readonly int _sampleSize = 100;
 
         public List<SpinResult> GenerateSpinResults(List<SpinData> spinDataList)
         {
@@ -62,7 +62,7 @@ namespace _game.Scripts.SpinSystem
         {
             var availableSpinList = new List<int>();
 
-            for (var i = 0; i < SAMPLE_SIZE; i++)
+            for (var i = 0; i < _sampleSize; i++)
             {
                 availableSpinList.Add(i);
             }
@@ -74,12 +74,12 @@ namespace _game.Scripts.SpinSystem
         {
             var spinResult = new List<int>();
             if (spinData.Percentage == 0) return spinResult;
-            var interval = Mathf.CeilToInt((float)SAMPLE_SIZE / spinData.Percentage);
+            var interval = Mathf.CeilToInt((float)_sampleSize / spinData.Percentage);
 
             var intervalStart = 0;
             var intervalEnd = interval;
 
-            while (intervalEnd < SAMPLE_SIZE)
+            while (intervalEnd < _sampleSize)
             {
                 var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
                 if (result == -1)
@@ -93,7 +93,7 @@ namespace _game.Scripts.SpinSystem
                 intervalEnd += interval;
             }
 
-            var lastSpin = GetRandomSpinResultForInterval(availableSpinList, intervalStart, SAMPLE_SIZE);
+            var lastSpin = GetRandomSpinResultForInterval(availableSpinList, intervalStart, _sampleSize);
             if (lastSpin == -1)
             {
                 lastSpin = FindFarSpin(availableSpinList, spinResult);
