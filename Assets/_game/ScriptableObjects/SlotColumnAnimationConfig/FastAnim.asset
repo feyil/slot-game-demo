@@ -15,7 +15,7 @@ MonoBehaviour:
   Config:
     StartSpinLoopCount: 5
     StartSpinDuration: 1
-    StopSpinLoopCount: 1
+    StopSpinLoopCount: 2
     StopSpinDuration: 0.1
     StopCurve:
       serializedVersion: 2

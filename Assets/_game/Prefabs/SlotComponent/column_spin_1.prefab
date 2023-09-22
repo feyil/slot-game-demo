@@ -60,6 +60,12 @@ MonoBehaviour:
   - {fileID: 6199816799875648938}
   - {fileID: 2089225645502704334}
   - {fileID: 8831213628260845817}
+  m_itemSpriteArray:
+  - {fileID: 21300000, guid: 8117bd7740a53457d955c6fb4bfb9efc, type: 3}
+  - {fileID: 21300000, guid: 5a9d9a1c288d6453489942f022b29cd4, type: 3}
+  - {fileID: 21300000, guid: 9bead5899ece049c2a4e2e40e6f692bf, type: 3}
+  - {fileID: 21300000, guid: 8585ad2f94abb43a69d81ff706e72299, type: 3}
+  - {fileID: 21300000, guid: 83fc06f3aae62429f9c395c39bd16b63, type: 3}
   m_fastAnimation: {fileID: 11400000, guid: 46397accabfde464982b866bbccf26bc, type: 2}
   m_normalAnimation: {fileID: 11400000, guid: 15face91e5990492f90f78efa71a94d4, type: 2}
   m_slowAnimation: {fileID: 11400000, guid: c2f8e5a63aa8344ed803e5c24058c65f, type: 2}

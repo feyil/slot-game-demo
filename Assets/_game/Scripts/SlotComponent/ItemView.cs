@@ -14,7 +14,7 @@ namespace _game.Scripts.SlotComponent
 
         public void SetBlur(bool state)
         {
-            m_image.sprite = state ? m_blurredSprite : m_defaultSprite;
+            // m_image.sprite = state ? m_blurredSprite : m_defaultSprite;
         }
 
         public Vector3 GetPosition()
@@ -25,6 +25,11 @@ namespace _game.Scripts.SlotComponent
         public void SetPositionY(float y)
         {
             m_rectTransform.SetAnchorPosY(y);
+        }
+
+        public void SetSprite(Sprite itemSprite)
+        {
+            m_image.sprite = itemSprite;
         }
     }
 }
