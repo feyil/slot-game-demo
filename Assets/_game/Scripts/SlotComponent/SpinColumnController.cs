@@ -30,6 +30,7 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private ItemView[] m_itemViewArray;
 
         [SerializeField] private Sprite[] m_itemSpriteArray;
+        [SerializeField] private Sprite[] m_itemBlurredArray;
 
         [SerializeField] private ColumnAnimationConfigScriptableObject m_fastAnimation;
         [SerializeField] private ColumnAnimationConfigScriptableObject m_normalAnimation;
@@ -72,7 +73,8 @@ namespace _game.Scripts.SlotComponent
                 _spinFillAmount = value;
                 SetNormalized(_spinFillAmount);
 
-                HandleItemLoop(step, lastSpinPosition, ref itemSpriteIndex, ref lastItemIndex, ref spinDeltaAmount,
+                HandleItemLoop(step, lastSpinPosition, true, ref itemSpriteIndex, ref lastItemIndex,
+                    ref spinDeltaAmount,
                     ref isResetTime,
                     ref lastNormalizedPosition);
             }, targetValue1, config.StartSpinDuration).SetEase(Ease.Linear);
@@ -87,20 +89,16 @@ namespace _game.Scripts.SlotComponent
                 _spinFillAmount = value;
                 SetNormalized(_spinFillAmount);
 
-                HandleItemLoop(step, lastSpinPosition, ref itemSpriteIndex, ref lastItemIndex, ref spinDeltaAmount,
+                HandleItemLoop(step, lastSpinPosition, false, ref itemSpriteIndex, ref lastItemIndex,
+                    ref spinDeltaAmount,
                     ref isResetTime,
                     ref lastNormalizedPosition);
             }, targetValue2, config.StopSpinDuration).SetEase(config.StopCurve);
 
             var seq = DOTween.Sequence();
             seq.AppendInterval(delay);
-            seq.AppendCallback(() => SetBlur(true));
             seq.Append(startTween);
-            seq.AppendCallback(() =>
-            {
-                SetBlur(false);
-                ResetLoopVariables();
-            });
+            seq.AppendCallback(ResetLoopVariables);
             seq.Append(stopTween);
             seq.OnComplete(() => { onComplete?.Invoke(this); });
         }
@@ -137,7 +135,8 @@ namespace _game.Scripts.SlotComponent
             return 0;
         }
 
-        private void HandleItemLoop(float step, float lastSpinPosition, ref int itemSpriteIndex, ref int lastItemIndex,
+        private void HandleItemLoop(float step, float lastSpinPosition, bool isBlurred, ref int itemSpriteIndex,
+            ref int lastItemIndex,
             ref float spinDeltaAmount,
             ref bool isResetTime, ref float lastNormalizedPosition)
         {
@@ -155,8 +154,17 @@ namespace _game.Scripts.SlotComponent
                 lastItemIndex -= 1;
                 _lastSpinItemIndex = lastItemIndex;
 
-                var itemSprite = m_itemSpriteArray[itemSpriteIndex % m_itemSpriteArray.Length];
-                lastItem.SetSprite(itemSprite);
+                if (isBlurred)
+                {
+                    var itemBlurredSprite = m_itemBlurredArray[itemSpriteIndex % m_itemBlurredArray.Length];
+                    lastItem.SetSprite(itemBlurredSprite);
+                }
+                else
+                {
+                    var itemSprite = m_itemSpriteArray[itemSpriteIndex % m_itemSpriteArray.Length];
+                    lastItem.SetSprite(itemSprite);
+                }
+
                 itemSpriteIndex++;
             }
 
@@ -192,18 +200,9 @@ namespace _game.Scripts.SlotComponent
             return Mathf.InverseLerp(0, -m_itemHeight * 3, m_rectTransform.anchoredPosition.y);
         }
 
-        private void SetBlur(bool state)
-        {
-            foreach (var itemView in m_itemViewArray)
-            {
-                itemView.SetBlur(state);
-            }
-        }
-
         [Button]
         private float GetStep()
-        {
-            // return (float)Math.Round(1f / m_itemViewArray.Length, 2);
+        { ;
             return 1f / m_itemViewArray.Length;
         }
 

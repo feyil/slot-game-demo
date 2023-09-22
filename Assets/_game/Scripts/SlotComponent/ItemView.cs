@@ -9,14 +9,6 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private RectTransform m_rectTransform;
         [SerializeField] private Image m_image;
         
-        [SerializeField] private Sprite m_defaultSprite;
-        [SerializeField] private Sprite m_blurredSprite;
-
-        public void SetBlur(bool state)
-        {
-            // m_image.sprite = state ? m_blurredSprite : m_defaultSprite;
-        }
-
         public Vector3 GetPosition()
         {
             return m_rectTransform.anchoredPosition;
