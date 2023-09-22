@@ -39,7 +39,7 @@ namespace _game.Scripts.SpinSystem
         {
             var newResults = _spinResultGenerator.GenerateSpinResults(_spinDataList);
             LogSpinResult(newResults);
-            
+
             var spinResultPref = _spinSaveManager.SaveSpinResult(newResults);
             return spinResultPref;
         }
@@ -69,21 +69,22 @@ namespace _game.Scripts.SpinSystem
                 totalCount += entry.Value.Count;
                 Debug.Log($"[SPIN_MANAGER] SpinId:{entry.Key}::Count:{entry.Value.Count}::Occurence:{valueString}");
             }
-            
+
             Debug.Log($"[SPIN_MANAGER] Total count: {totalCount}");
         }
 
         [Button]
         public SpinResult Spin()
         {
-            if (_spinResultPref.SpinResultList.Count == 0)
+            var currentIndex = _spinSaveManager.GetCurrentIndex();
+            if (currentIndex >= _spinResultPref.SpinResultList.Count)
             {
                 _spinResultPref = GetNewResults();
+                currentIndex = _spinSaveManager.GetCurrentIndex();
             }
-
-            var currentSpinData = _spinResultPref.SpinResultList[0];
-            _spinResultPref.SpinResultList.Remove(currentSpinData);
-            _spinSaveManager.SaveSpinResult(_spinResultPref);
+            
+            var currentSpinData = _spinResultPref.SpinResultList[currentIndex];
+            _spinSaveManager.IncreaseIndex();
             return currentSpinData;
         }
     }
