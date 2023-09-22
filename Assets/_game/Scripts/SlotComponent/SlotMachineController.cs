@@ -9,7 +9,6 @@ namespace _game.Scripts.SlotComponent
 {
     public class SlotMachineController : MonoBehaviour
     {
-        [SerializeField] private Button m_spinButton;
         [SerializeField] private CoinParticleController m_coinParticleController;
 
         [SerializeField] private SpinColumnController m_leftSpinController;
@@ -23,19 +22,21 @@ namespace _game.Scripts.SlotComponent
 
         private bool _isReward;
         private SpinColumnId _rewardId;
+        
+        private Action _onSpinStart;
+        private Action _onSpinEnd;
 
-        public void Initialize(Action<SlotMachineController> onSpin)
+        public void Initialize(Action onSpinStart, Action onSpinEnd)
         {
-            m_spinButton.onClick.RemoveAllListeners();
-            m_spinButton.onClick.AddListener(() => onSpin?.Invoke(this));
+            _onSpinStart = onSpinStart;
+            _onSpinEnd = onSpinEnd;
         }
 
         [Button]
         public void Spin(SpinId spinId)
         {
             _completeCount = 0;
-            m_spinButton.interactable = false;
-
+            
             switch (spinId)
             {
                 case SpinId.A_WILD_BONUS:
@@ -75,6 +76,8 @@ namespace _game.Scripts.SlotComponent
 
         private void Spin(SpinColumnId left, SpinColumnId middle, SpinColumnId right)
         {
+            _onSpinStart?.Invoke();
+            
             m_leftSpinController.Spin(left, OnComplete);
 
             var delayMiddle = Random.Range(DelayMin, DelayMax);
@@ -109,12 +112,13 @@ namespace _game.Scripts.SlotComponent
         private void OnAllComplete()
         {
             Debug.Log("[SLOT_MACHINE_CONTROLLER] All columns completed.");
-            m_spinButton.interactable = true;
-
+           
             if (_isReward)
             {
                 m_coinParticleController.Play(_rewardId);
             }
+            
+            _onSpinEnd?.Invoke();
         }
     }
 }

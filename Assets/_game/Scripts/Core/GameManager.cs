@@ -50,8 +50,7 @@ namespace _game.Scripts.Core
             _spinManager = spinManager;
 
             var gameUiController = UiManager.Get<GameUiController>();
-            var slotMachine = gameUiController.GetSlotMachine();
-            slotMachine.Initialize(OnSpin);
+            gameUiController.Show(OnSpin);
         }
 
         private void OnSpin(SlotMachineController slotMachineController)
