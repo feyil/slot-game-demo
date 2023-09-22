@@ -609,14 +609,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da10fbaa09c254c7d8d6dfddc2ab7ff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_spinButton: {fileID: 52515621542730095}
   m_coinParticleController: {fileID: 2256674057527064510}
-  m_leftSpinController: {fileID: 2227513217655882421}
-  m_middleSpinController: {fileID: 5597280091433930362}
-  m_rightSpinController: {fileID: 1627131237861178986}
-  DelayMin: 0.1
-  DelayMax: 0.3
-  _completeCount: 0
+  m_columArray:
+  - {fileID: 2227513217655882421}
+  - {fileID: 5597280091433930362}
+  - {fileID: 1627131237861178986}
+  m_delayMin: 0.1
+  m_delayMax: 0.3
 --- !u!1 &8157448178221704324
 GameObject:
   m_ObjectHideFlags: 0
