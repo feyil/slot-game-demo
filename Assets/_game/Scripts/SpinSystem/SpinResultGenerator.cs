@@ -10,15 +10,18 @@ namespace _game.Scripts.SpinSystem
     public class SpinResultGenerator
     {
         private readonly int _sampleSize = 100;
+        private List<Action> _noneMatchedCountList;
         private readonly SpinResultLogHelper _logHelper;
 
         public SpinResultGenerator()
         {
             _logHelper = new SpinResultLogHelper(true);
+            _noneMatchedCountList = new List<Action>();
         }
 
         public List<SpinResult> GenerateSpinResults(List<SpinData> spinDataList)
         {
+            _noneMatchedCountList.Clear();
             OrderByRemainder(spinDataList);
             
             var availableSpinList = GetAvailableSpinList();
@@ -36,6 +39,11 @@ namespace _game.Scripts.SpinSystem
 
                     InsertSpinResult(spinResultList, spinResult);
                 }
+            }
+
+            foreach (var action in _noneMatchedCountList)
+            {
+                action?.Invoke();
             }
 
             if (availableSpinList.Count != 0)
@@ -115,18 +123,21 @@ namespace _game.Scripts.SpinSystem
             
             if (spinResult.Count != spinData.Percentage)
             {
-                var diff = spinData.Percentage - spinResult.Count;
-                for (var i = 0; i < diff; i++)
+                _noneMatchedCountList.Add(() =>
                 {
-                    var result = FindFarSpin(availableSpinList, spinResult);
-                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList, spinResult);
-                    spinResult.Add(result);
-                }
+                    var diff = spinData.Percentage - spinResult.Count;
+                    for (var i = 0; i < diff; i++)
+                    {
+                        var result = FindFarSpin(availableSpinList, spinResult);
+                        _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList, spinResult);
+                        spinResult.Add(result);
+                    }
+                });
             }
 
             return spinResult;
         }
-
+        
         private int GetRandomSpinResultForInterval(List<int> availableSpinList, int intervalStart, int intervalEnd)
         {
             intervalEnd -= 1;
