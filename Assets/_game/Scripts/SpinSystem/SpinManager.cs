@@ -23,7 +23,7 @@ namespace _game.Scripts.SpinSystem
             _spinSaveManager = spinSaveManager;
             _spinDataList = spinDatalist;
         }
-
+        
         public void Start()
         {
             var spinResultPref = _spinSaveManager.LoadSpinResult();

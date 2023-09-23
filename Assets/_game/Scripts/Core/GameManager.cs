@@ -44,7 +44,6 @@ namespace _game.Scripts.Core
             var spinSaveManager = new SpinSaveManager();
 
             var spinData = GetSpinData();
-
             var spinManager = new SpinManager(spinResultGenerator, spinSaveManager, spinData);
             spinManager.Start();
             _spinManager = spinManager;

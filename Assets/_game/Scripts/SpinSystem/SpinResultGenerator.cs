@@ -10,9 +10,17 @@ namespace _game.Scripts.SpinSystem
     public class SpinResultGenerator
     {
         private readonly int _sampleSize = 100;
+        private readonly SpinResultLogHelper _logHelper;
+
+        public SpinResultGenerator()
+        {
+            _logHelper = new SpinResultLogHelper(true);
+        }
 
         public List<SpinResult> GenerateSpinResults(List<SpinData> spinDataList)
         {
+            OrderByRemainder(spinDataList);
+            
             var availableSpinList = GetAvailableSpinList();
             var spinResultList = new List<SpinResult>();
             foreach (var spinData in spinDataList)
@@ -38,6 +46,12 @@ namespace _game.Scripts.SpinSystem
 
             return spinResultList;
         }
+
+        private void OrderByRemainder(List<SpinData> spinDataList)
+        {
+            spinDataList.Sort((a, b) => (_sampleSize % a.Percentage).CompareTo(_sampleSize % b.Percentage));
+        }
+
 
         private void InsertSpinResult(List<SpinResult> spinResultList, SpinResult spinResult)
         {
@@ -85,6 +99,7 @@ namespace _game.Scripts.SpinSystem
                 if (result == -1)
                 {
                     result = FindFarSpin(availableSpinList, spinResult);
+                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList, spinResult);
                 }
 
                 spinResult.Add(result);
@@ -97,6 +112,7 @@ namespace _game.Scripts.SpinSystem
             if (lastSpin == -1)
             {
                 lastSpin = FindFarSpin(availableSpinList, spinResult);
+                _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, lastSpin, availableSpinList, spinResult);
             }
 
             spinResult.Add(lastSpin);
@@ -107,6 +123,7 @@ namespace _game.Scripts.SpinSystem
                 for (var i = 0; i < diff; i++)
                 {
                     var result = FindFarSpin(availableSpinList, spinResult);
+                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, lastSpin, availableSpinList, spinResult);
                     spinResult.Add(result);
                 }
             }
