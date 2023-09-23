@@ -39,7 +39,7 @@ namespace _game.Scripts.SpinSystem
 
                     InsertSpinResult(spinResultList, spinResult);
                 }
-                
+
                 var spinDataResult = GetSpinResult(availableSpinList, spinData, ConvertSpinResult);
                 foreach (var spinCount in spinDataResult)
                 {
@@ -98,7 +98,8 @@ namespace _game.Scripts.SpinSystem
             return availableSpinList;
         }
 
-        private List<int> GetSpinResult(List<int> availableSpinList, SpinData spinData, Action<SpinData, int> addSpinResult)
+        private List<int> GetSpinResult(List<int> availableSpinList, SpinData spinData,
+            Action<SpinData, int> addSpinResult)
         {
             var spinResult = new List<int>();
             if (spinData.Percentage == 0) return spinResult;
@@ -115,18 +116,18 @@ namespace _game.Scripts.SpinSystem
                     intervalEnd += 1;
                     remainder--;
                 }
-                
+
                 // _logHelper.LogInterval(spinData.Percentage, intervalStart, intervalEnd);
                 var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
                 if (result != -1)
                 {
                     spinResult.Add(result);
                 }
-                
+
                 intervalStart = intervalEnd;
                 intervalEnd += interval;
             }
-            
+
             if (spinResult.Count != spinData.Percentage)
             {
                 var diff = spinData.Percentage - spinResult.Count;
@@ -134,13 +135,13 @@ namespace _game.Scripts.SpinSystem
                 {
                     _noneMatchedCountList.Add(() =>
                     {
-                        
                         var inS = intervalStart;
                         var inE = intervalEnd;
                         var result = FindFarSpin(availableSpinList, spinResult);
                         _logHelper.LogFarSpinDecision(inS, inE, spinData, result, availableSpinList,
                             spinResult);
-                        
+
+                        if (result != -1) availableSpinList.Remove(result);
                         addSpinResult?.Invoke(spinData, result);
                     });
                 }
@@ -181,7 +182,6 @@ namespace _game.Scripts.SpinSystem
             {
                 var index = Random.Range(0, availableSpinList.Count);
                 selectedSpin = availableSpinList[index];
-                availableSpinList.Remove(selectedSpin);
                 return selectedSpin;
             }
 
@@ -210,10 +210,6 @@ namespace _game.Scripts.SpinSystem
             if (selectedSpin == -1)
             {
                 Debug.LogException(new Exception("No Spin Found"));
-            }
-            else
-            {
-                availableSpinList.Remove(selectedSpin);
             }
 
             return selectedSpin;
