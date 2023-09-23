@@ -15,6 +15,7 @@ namespace _game.Scripts.SlotComponent
 
         [Title("Parameters")] [SerializeField] private float m_delayMin = 0.1f;
         [SerializeField] private float m_delayMax = 0.3f;
+        [SerializeField] private ColumnAnimationConfigScriptableObject m_animationConfig;
 
         private int _completeCount;
         private bool _isReward;
@@ -96,7 +97,7 @@ namespace _game.Scripts.SlotComponent
                     animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
                 }
 
-                spinColumnController.Spin(spinColumnId, OnComplete, delay, animId);
+                spinColumnController.Spin(spinColumnId, OnComplete, m_animationConfig.GetConfig(animId), delay);
             }
 
             var isReward = columnIdArray.ToHashSet().Count == 1;

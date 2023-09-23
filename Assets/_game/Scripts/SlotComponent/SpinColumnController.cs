@@ -31,20 +31,14 @@ namespace _game.Scripts.SlotComponent
 
         [SerializeField] private Sprite[] m_itemSpriteArray;
         [SerializeField] private Sprite[] m_itemBlurredArray;
-
-        [SerializeField] private ColumnAnimationConfigScriptableObject m_fastAnimation;
-        [SerializeField] private ColumnAnimationConfigScriptableObject m_normalAnimation;
-        [SerializeField] private ColumnAnimationConfigScriptableObject m_slowAnimation;
-
+        
         private float _spinFillAmount;
         private int _itemCount;
         private int _lastSpinItemIndex = -1;
 
         [Button]
-        public void Spin(SpinColumnId spinColumnId, Action<SpinColumnController> onComplete, float delay = 0f,
-            ColumnAnimationConfigId animationConfigId = ColumnAnimationConfigId.Fast)
+        public void Spin(SpinColumnId spinColumnId, Action<SpinColumnController> onComplete, ColumnAnimationConfig config, float delay = 0f)
         {
-            var config = GetConfig(animationConfigId);
             var singleLoopLength = GetSingleLoopLength();
 
             var step = GetStep();
@@ -202,23 +196,8 @@ namespace _game.Scripts.SlotComponent
 
         [Button]
         private float GetStep()
-        { ;
-            return 1f / m_itemViewArray.Length;
-        }
-
-        private ColumnAnimationConfig GetConfig(ColumnAnimationConfigId animationConfigId)
         {
-            switch (animationConfigId)
-            {
-                case ColumnAnimationConfigId.Fast:
-                    return m_fastAnimation.Config;
-                case ColumnAnimationConfigId.Normal:
-                    return m_normalAnimation.Config;
-                case ColumnAnimationConfigId.Slow:
-                    return m_slowAnimation.Config;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(animationConfigId), animationConfigId, null);
-            }
+            return 1f / m_itemViewArray.Length;
         }
     }
 }
