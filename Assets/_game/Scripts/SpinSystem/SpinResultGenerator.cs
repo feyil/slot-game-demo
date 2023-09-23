@@ -96,34 +96,30 @@ namespace _game.Scripts.SpinSystem
             while (intervalEnd < _sampleSize)
             {
                 var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
-                if (result == -1)
-                {
-                    result = FindFarSpin(availableSpinList, spinResult);
-                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList, spinResult);
-                }
-
-                spinResult.Add(result);
-
+                
                 intervalStart = intervalEnd;
                 intervalEnd += interval;
+
+                if (result != -1)
+                {
+                    spinResult.Add(result);
+                }
+
             }
 
             var lastSpin = GetRandomSpinResultForInterval(availableSpinList, intervalStart, _sampleSize);
-            if (lastSpin == -1)
+            if (lastSpin != -1)
             {
-                lastSpin = FindFarSpin(availableSpinList, spinResult);
-                _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, lastSpin, availableSpinList, spinResult);
+                spinResult.Add(lastSpin);    
             }
-
-            spinResult.Add(lastSpin);
-
+            
             if (spinResult.Count != spinData.Percentage)
             {
                 var diff = spinData.Percentage - spinResult.Count;
                 for (var i = 0; i < diff; i++)
                 {
                     var result = FindFarSpin(availableSpinList, spinResult);
-                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, lastSpin, availableSpinList, spinResult);
+                    _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList, spinResult);
                     spinResult.Add(result);
                 }
             }
