@@ -32,7 +32,12 @@ namespace _game.Scripts.SpinSystem
 
 
             Debug.Log(
-                $"FindFarSpin {intervalStart}:{intervalEnd}::::{str2}::::{spinData.Spin}:{spinData.Percentage}:{result}xxxx{str}");
+                $"FindFarSpin ::::{str2}::::{spinData.Spin}:{spinData.Percentage}:{result}xxxx{str}");
+        }
+
+        public void LogInterval(int percentage, int intervalStart, int intervalEnd)
+        {
+            Debug.Log($"Count:{percentage} [{intervalStart},{intervalEnd})");
         }
     }
 }

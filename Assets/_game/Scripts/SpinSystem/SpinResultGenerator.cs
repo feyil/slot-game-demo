@@ -102,30 +102,31 @@ namespace _game.Scripts.SpinSystem
         {
             var spinResult = new List<int>();
             if (spinData.Percentage == 0) return spinResult;
-            var interval = Mathf.CeilToInt((float)_sampleSize / spinData.Percentage);
+            var interval = Mathf.FloorToInt((float)_sampleSize / spinData.Percentage);
 
             var intervalStart = 0;
             var intervalEnd = interval;
 
-            while (intervalEnd < _sampleSize)
+            var remainder = _sampleSize % spinData.Percentage;
+            while (intervalEnd <= _sampleSize)
             {
+                if (remainder != 0)
+                {
+                    intervalEnd += 1;
+                    remainder--;
+                }
+                
+                // _logHelper.LogInterval(spinData.Percentage, intervalStart, intervalEnd);
                 var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
-
-                intervalStart = intervalEnd;
-                intervalEnd += interval;
-
                 if (result != -1)
                 {
                     spinResult.Add(result);
                 }
+                
+                intervalStart = intervalEnd;
+                intervalEnd += interval;
             }
-
-            var lastSpin = GetRandomSpinResultForInterval(availableSpinList, intervalStart, _sampleSize);
-            if (lastSpin != -1)
-            {
-                spinResult.Add(lastSpin);
-            }
-
+            
             if (spinResult.Count != spinData.Percentage)
             {
                 var diff = spinData.Percentage - spinResult.Count;
@@ -133,8 +134,11 @@ namespace _game.Scripts.SpinSystem
                 {
                     _noneMatchedCountList.Add(() =>
                     {
+                        
+                        var inS = intervalStart;
+                        var inE = intervalEnd;
                         var result = FindFarSpin(availableSpinList, spinResult);
-                        _logHelper.LogFarSpinDecision(intervalStart, intervalEnd, spinData, result, availableSpinList,
+                        _logHelper.LogFarSpinDecision(inS, inE, spinData, result, availableSpinList,
                             spinResult);
                         
                         addSpinResult?.Invoke(spinData, result);
@@ -151,7 +155,7 @@ namespace _game.Scripts.SpinSystem
             var possibleSpins = new List<int>();
             foreach (var spinCount in availableSpinList)
             {
-                if (spinCount >= intervalStart && spinCount <= intervalEnd)
+                if (spinCount >= intervalStart && spinCount < intervalEnd)
                 {
                     possibleSpins.Add(spinCount);
                 }
