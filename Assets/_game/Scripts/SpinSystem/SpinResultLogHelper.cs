@@ -13,8 +13,8 @@ namespace _game.Scripts.SpinSystem
             _isEnabled = isEnabled;
         }
 
-        public void LogFarSpinDecision(int intervalStart, int intervalEnd, SpinData spinData, int result,
-            List<int> availableSpinList, List<int> spinResult)
+        public void LogFarSpinDecision(SpinData spinData, int result,
+            List<int> availableSpinList, List<int> spinResult, int spinDiff)
         {
             if (!_isEnabled) return;
             
@@ -32,7 +32,7 @@ namespace _game.Scripts.SpinSystem
 
 
             Debug.Log(
-                $"FindFarSpin ::::{str2}::::{spinData.Spin}:{spinData.Percentage}:{result}xxxx{str}");
+                $"FindFarSpin ::::{str2}::::{spinData.Spin}:{spinData.Percentage}:{result}xxxx{str} -> SpinDiff:{spinDiff}");
         }
 
         public void LogInterval(int percentage, int intervalStart, int intervalEnd)

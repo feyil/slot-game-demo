@@ -46,12 +46,12 @@ namespace _game.Scripts.SpinSystem
                     ConvertSpinResult(spinData, spinCount);
                 }
             }
-
+            
             foreach (var action in _noneMatchedCountList)
             {
                 action?.Invoke();
             }
-
+            
             if (availableSpinList.Count != 0)
             {
                 Debug.LogException(
@@ -135,11 +135,9 @@ namespace _game.Scripts.SpinSystem
                 {
                     _noneMatchedCountList.Add(() =>
                     {
-                        var inS = intervalStart;
-                        var inE = intervalEnd;
-                        var result = FindFarSpin(availableSpinList, spinResult);
-                        _logHelper.LogFarSpinDecision(inS, inE, spinData, result, availableSpinList,
-                            spinResult);
+                        var result = FindFarSpin(availableSpinList, spinResult, out var spinDiff);
+                        _logHelper.LogFarSpinDecision(spinData, result, availableSpinList,
+                            spinResult, spinDiff);
 
                         if (result != -1) availableSpinList.Remove(result);
                         addSpinResult?.Invoke(spinData, result);
@@ -174,7 +172,7 @@ namespace _game.Scripts.SpinSystem
             return result;
         }
 
-        private int FindFarSpin(List<int> availableSpinList, List<int> spinResult)
+        private int FindFarSpin(List<int> availableSpinList, List<int> spinResult, out int diff)
         {
             var selectedSpin = -1;
 
@@ -182,6 +180,7 @@ namespace _game.Scripts.SpinSystem
             {
                 var index = Random.Range(0, availableSpinList.Count);
                 selectedSpin = availableSpinList[index];
+                diff = 0;
                 return selectedSpin;
             }
 
@@ -212,6 +211,7 @@ namespace _game.Scripts.SpinSystem
                 Debug.LogException(new Exception("No Spin Found"));
             }
 
+            diff = maxDistance;
             return selectedSpin;
         }
     }
