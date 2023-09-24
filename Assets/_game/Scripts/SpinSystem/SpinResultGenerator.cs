@@ -14,7 +14,7 @@ namespace _game.Scripts.SpinSystem
 
         public SpinResultGenerator()
         {
-            _logHelper = new SpinResultLogHelper(true);
+            _logHelper = new SpinResultLogHelper(false);
             _noneMatchedCountList = new List<Action>();
         }
 
