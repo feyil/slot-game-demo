@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using _game.Scripts.SpinSystem.Data;
 using Sirenix.OdinInspector;
@@ -6,7 +5,6 @@ using UnityEngine;
 
 namespace _game.Scripts.SpinSystem
 {
-    [Serializable]
     public class SpinManager
     {
         private readonly SpinResultGenerator _spinResultGenerator;
@@ -23,7 +21,7 @@ namespace _game.Scripts.SpinSystem
             _spinSaveManager = spinSaveManager;
             _spinDataList = spinDatalist;
         }
-
+        
         public void Start()
         {
             var spinResultPref = _spinSaveManager.LoadSpinResult();
@@ -39,7 +37,7 @@ namespace _game.Scripts.SpinSystem
         {
             var newResults = _spinResultGenerator.GenerateSpinResults(_spinDataList);
             LogSpinResult(newResults);
-            
+
             var spinResultPref = _spinSaveManager.SaveSpinResult(newResults);
             return spinResultPref;
         }
@@ -69,21 +67,22 @@ namespace _game.Scripts.SpinSystem
                 totalCount += entry.Value.Count;
                 Debug.Log($"[SPIN_MANAGER] SpinId:{entry.Key}::Count:{entry.Value.Count}::Occurence:{valueString}");
             }
-            
+
             Debug.Log($"[SPIN_MANAGER] Total count: {totalCount}");
         }
 
         [Button]
         public SpinResult Spin()
         {
-            if (_spinResultPref.SpinResultList.Count == 0)
+            var currentIndex = _spinSaveManager.GetCurrentIndex();
+            if (currentIndex >= _spinResultPref.SpinResultList.Count)
             {
                 _spinResultPref = GetNewResults();
+                currentIndex = _spinSaveManager.GetCurrentIndex();
             }
-
-            var currentSpinData = _spinResultPref.SpinResultList[0];
-            _spinResultPref.SpinResultList.Remove(currentSpinData);
-            _spinSaveManager.SaveSpinResult(_spinResultPref);
+            
+            var currentSpinData = _spinResultPref.SpinResultList[currentIndex];
+            _spinSaveManager.IncreaseIndex();
             return currentSpinData;
         }
     }

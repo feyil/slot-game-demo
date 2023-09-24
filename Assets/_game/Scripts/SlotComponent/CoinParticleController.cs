@@ -8,16 +8,10 @@ namespace _game.Scripts.SlotComponent
         [SerializeField] private ParticleSystem m_particleSystem;
         [SerializeField] private float m_defaultRateOverTime = 20;
         
-        private void Awake()
-        {
-            gameObject.SetActive(false);
-        }
-
         [Button]
         public void Play()
         {
-            gameObject.SetActive(true);
-            m_particleSystem.Simulate(0); ;
+            m_particleSystem.Play();
         }
 
         [Button]

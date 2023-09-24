@@ -1,106 +1,114 @@
 using System;
+using System.Linq;
 using _game.Scripts.SpinSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace _game.Scripts.SlotComponent
 {
     public class SlotMachineController : MonoBehaviour
     {
-        [SerializeField] private Button m_spinButton;
         [SerializeField] private CoinParticleController m_coinParticleController;
 
-        [SerializeField] private SpinColumnController m_leftSpinController;
-        [SerializeField] private SpinColumnController m_middleSpinController;
-        [SerializeField] private SpinColumnController m_rightSpinController;
+        [SerializeField] private SpinColumnController[] m_columArray;
 
-        [Title("Parameters")] [SerializeField] private float DelayMin = 0.1f;
-        [SerializeField] private float DelayMax = 0.3f;
+        [Title("Parameters")] [SerializeField] private float m_delayMin = 0.1f;
+        [SerializeField] private float m_delayMax = 0.3f;
+        [SerializeField] private ColumnAnimationConfigScriptableObject m_animationConfig;
 
-        [SerializeField] private int _completeCount;
-
+        private int _completeCount;
         private bool _isReward;
         private SpinColumnId _rewardId;
 
-        public void Initialize(Action<SlotMachineController> onSpin)
+        private Action _onSpinStart;
+        private Action _onSpinEnd;
+
+        public void Initialize(Action onSpinStart, Action onSpinEnd)
         {
-            m_spinButton.onClick.RemoveAllListeners();
-            m_spinButton.onClick.AddListener(() => onSpin?.Invoke(this));
+            _onSpinStart = onSpinStart;
+            _onSpinEnd = onSpinEnd;
         }
 
         [Button]
         public void Spin(SpinId spinId)
         {
             _completeCount = 0;
-            m_spinButton.interactable = false;
 
             switch (spinId)
             {
-                case SpinId.A_WILD_BONUS:
-                    Spin(SpinColumnId.A, SpinColumnId.Wild, SpinColumnId.Bonus);
+                case SpinId.AWildBonus:
+                    Spin(new[] { SpinColumnId.A, SpinColumnId.Wild, SpinColumnId.Bonus });
                     break;
-                case SpinId.WILD_WILD_SEVEN:
-                    Spin(SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Seven);
+                case SpinId.WildWildSeven:
+                    Spin(new[] { SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Seven });
                     break;
-                case SpinId.JACKPOT_JACKPOT_A:
-                    Spin(SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.A);
+                case SpinId.JackpotJackpotA:
+                    Spin(new[] { SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.A });
                     break;
-                case SpinId.WILD_BONUS_A:
-                    Spin(SpinColumnId.Wild, SpinColumnId.Bonus, SpinColumnId.A);
+                case SpinId.WildBonusA:
+                    Spin(new[] { SpinColumnId.Wild, SpinColumnId.Bonus, SpinColumnId.A });
                     break;
-                case SpinId.BONUS_A_JACKPOT:
-                    Spin(SpinColumnId.Bonus, SpinColumnId.A, SpinColumnId.Jackpot);
+                case SpinId.BonusAJackpot:
+                    Spin(new[] { SpinColumnId.Bonus, SpinColumnId.A, SpinColumnId.Jackpot });
                     break;
-                case SpinId.A_A_A:
-                    Spin(SpinColumnId.A, SpinColumnId.A, SpinColumnId.A);
+                case SpinId.AAA:
+                    Spin(new[] { SpinColumnId.A, SpinColumnId.A, SpinColumnId.A });
                     break;
-                case SpinId.BONUS_BONUS_BONUS:
-                    Spin(SpinColumnId.Bonus, SpinColumnId.Bonus, SpinColumnId.Bonus);
+                case SpinId.BonusBonusBonus:
+                    Spin(new[] { SpinColumnId.Bonus, SpinColumnId.Bonus, SpinColumnId.Bonus });
                     break;
-                case SpinId.SEVEN_SEVEN_SEVEN:
-                    Spin(SpinColumnId.Seven, SpinColumnId.Seven, SpinColumnId.Seven);
+                case SpinId.SevenSevenSeven:
+                    Spin(new[] { SpinColumnId.Seven, SpinColumnId.Seven, SpinColumnId.Seven });
                     break;
-                case SpinId.WILD_WILD_WILD:
-                    Spin(SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Wild);
+                case SpinId.WildWildWild:
+                    Spin(new[] { SpinColumnId.Wild, SpinColumnId.Wild, SpinColumnId.Wild });
                     break;
-                case SpinId.JACKPOT_JACKPOT_JACKPOT:
-                    Spin(SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.Jackpot);
+                case SpinId.JackpotJackpotJackpot:
+                    Spin(new[] { SpinColumnId.Jackpot, SpinColumnId.Jackpot, SpinColumnId.Jackpot });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spinId), spinId, null);
             }
         }
 
-        private void Spin(SpinColumnId left, SpinColumnId middle, SpinColumnId right)
+        private void Spin(SpinColumnId[] columnIdArray)
         {
-            m_leftSpinController.Spin(left, OnComplete);
+            _onSpinStart?.Invoke();
 
-            var delayMiddle = Random.Range(DelayMin, DelayMax);
-            var delayRight = delayMiddle + Random.Range(DelayMin, DelayMax);
-
-            m_middleSpinController.Spin(middle, OnComplete, delayMiddle);
-
-            var isReward = left == middle && middle == right;
-            _isReward = isReward;
-            _rewardId = left;
-
-            var animIndex = Random.Range(0, 2);
-
-            var animId = ColumnAnimationConfigId.Fast;
-            if (left == middle)
+            var totalDelay = 0f;
+            for (var index = 0; index < m_columArray.Length; index++)
             {
-                animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
+                var spinColumnController = m_columArray[index];
+                if (index >= columnIdArray.Length) break;
+
+                var spinColumnId = columnIdArray[index];
+                var delay = 0f;
+                var animId = ColumnAnimationConfigId.Fast;
+                if (index != 0)
+                {
+                    delay = totalDelay + Random.Range(m_delayMin, m_delayMax);
+                    totalDelay += totalDelay;
+                }
+
+                if (index == 2 && columnIdArray[index - 1] == columnIdArray[index - 2])
+                {
+                    var animIndex = Random.Range(0, 2);
+                    animId = animIndex == 1 ? ColumnAnimationConfigId.Normal : ColumnAnimationConfigId.Slow;
+                }
+
+                spinColumnController.Spin(spinColumnId, OnComplete, m_animationConfig.GetConfig(animId), delay);
             }
 
-            m_rightSpinController.Spin(right, OnComplete, delayRight, animId);
+            var isReward = columnIdArray.ToHashSet().Count == 1;
+            _isReward = isReward;
+            _rewardId = columnIdArray[0];
         }
 
         private void OnComplete(SpinColumnController spinColumnController)
         {
             _completeCount++;
-            if (_completeCount == 3)
+            if (_completeCount == m_columArray.Length)
             {
                 OnAllComplete();
             }
@@ -109,12 +117,13 @@ namespace _game.Scripts.SlotComponent
         private void OnAllComplete()
         {
             Debug.Log("[SLOT_MACHINE_CONTROLLER] All columns completed.");
-            m_spinButton.interactable = true;
 
             if (_isReward)
             {
                 m_coinParticleController.Play(_rewardId);
             }
+
+            _onSpinEnd?.Invoke();
         }
     }
 }

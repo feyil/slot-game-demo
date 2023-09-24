@@ -6,30 +6,51 @@ using Random = UnityEngine.Random;
 
 namespace _game.Scripts.SpinSystem
 {
-    [Serializable]
     public class SpinResultGenerator
     {
-        private readonly int SAMPLE_SIZE = 100;
+        private readonly int _sampleSize = 100;
+        private readonly List<Action> _noneMatchedCountList;
+        private readonly SpinResultLogHelper _logHelper;
+
+        public SpinResultGenerator()
+        {
+            _logHelper = new SpinResultLogHelper(true);
+            _noneMatchedCountList = new List<Action>();
+        }
 
         public List<SpinResult> GenerateSpinResults(List<SpinData> spinDataList)
         {
+            _noneMatchedCountList.Clear();
+            OrderByRemainder(spinDataList);
+
             var availableSpinList = GetAvailableSpinList();
             var spinResultList = new List<SpinResult>();
             foreach (var spinData in spinDataList)
             {
-                var spinDataResult = GetSpinResult(availableSpinList, spinData);
-                foreach (var spinCount in spinDataResult)
+                //TODO need of this method can be managed better
+                void ConvertSpinResult(SpinData sd, int spinCount)
                 {
                     var spinResult = new SpinResult()
                     {
-                        Spin = spinData.Spin,
+                        Spin = sd.Spin,
                         SpinCount = spinCount
                     };
 
                     InsertSpinResult(spinResultList, spinResult);
                 }
-            }
 
+                var spinDataResult = GetSpinResult(availableSpinList, spinData, ConvertSpinResult);
+                foreach (var spinCount in spinDataResult)
+                {
+                    ConvertSpinResult(spinData, spinCount);
+                }
+            }
+            
+            foreach (var action in _noneMatchedCountList)
+            {
+                action?.Invoke();
+            }
+            
             if (availableSpinList.Count != 0)
             {
                 Debug.LogException(
@@ -38,6 +59,12 @@ namespace _game.Scripts.SpinSystem
 
             return spinResultList;
         }
+
+        private void OrderByRemainder(List<SpinData> spinDataList)
+        {
+            spinDataList.Sort((a, b) => (_sampleSize % a.Percentage).CompareTo(_sampleSize % b.Percentage));
+        }
+
 
         private void InsertSpinResult(List<SpinResult> spinResultList, SpinResult spinResult)
         {
@@ -62,7 +89,7 @@ namespace _game.Scripts.SpinSystem
         {
             var availableSpinList = new List<int>();
 
-            for (var i = 0; i < SAMPLE_SIZE; i++)
+            for (var i = 0; i < _sampleSize; i++)
             {
                 availableSpinList.Add(i);
             }
@@ -70,44 +97,50 @@ namespace _game.Scripts.SpinSystem
             return availableSpinList;
         }
 
-        private List<int> GetSpinResult(List<int> availableSpinList, SpinData spinData)
+        private List<int> GetSpinResult(List<int> availableSpinList, SpinData spinData,
+            Action<SpinData, int> addSpinResult)
         {
             var spinResult = new List<int>();
             if (spinData.Percentage == 0) return spinResult;
-            var interval = Mathf.CeilToInt((float)SAMPLE_SIZE / spinData.Percentage);
+            var interval = Mathf.FloorToInt((float)_sampleSize / spinData.Percentage);
 
             var intervalStart = 0;
             var intervalEnd = interval;
 
-            while (intervalEnd < SAMPLE_SIZE)
+            var remainder = _sampleSize % spinData.Percentage;
+            while (intervalEnd <= _sampleSize)
             {
-                var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
-                if (result == -1)
+                if (remainder != 0)
                 {
-                    result = FindFarSpin(availableSpinList, spinResult);
+                    intervalEnd += 1;
+                    remainder--;
                 }
 
-                spinResult.Add(result);
+                // _logHelper.LogInterval(spinData.Percentage, intervalStart, intervalEnd);
+                var result = GetRandomSpinResultForInterval(availableSpinList, intervalStart, intervalEnd);
+                if (result != -1)
+                {
+                    spinResult.Add(result);
+                }
 
                 intervalStart = intervalEnd;
                 intervalEnd += interval;
             }
-
-            var lastSpin = GetRandomSpinResultForInterval(availableSpinList, intervalStart, SAMPLE_SIZE);
-            if (lastSpin == -1)
-            {
-                lastSpin = FindFarSpin(availableSpinList, spinResult);
-            }
-
-            spinResult.Add(lastSpin);
 
             if (spinResult.Count != spinData.Percentage)
             {
                 var diff = spinData.Percentage - spinResult.Count;
                 for (var i = 0; i < diff; i++)
                 {
-                    var result = FindFarSpin(availableSpinList, spinResult);
-                    spinResult.Add(result);
+                    _noneMatchedCountList.Add(() =>
+                    {
+                        var result = FindFarSpin(availableSpinList, spinResult, out var spinDiff);
+                        _logHelper.LogFarSpinDecision(spinData, result, availableSpinList,
+                            spinResult, spinDiff);
+
+                        if (result != -1) availableSpinList.Remove(result);
+                        addSpinResult?.Invoke(spinData, result);
+                    });
                 }
             }
 
@@ -120,7 +153,7 @@ namespace _game.Scripts.SpinSystem
             var possibleSpins = new List<int>();
             foreach (var spinCount in availableSpinList)
             {
-                if (spinCount >= intervalStart && spinCount <= intervalEnd)
+                if (spinCount >= intervalStart && spinCount < intervalEnd)
                 {
                     possibleSpins.Add(spinCount);
                 }
@@ -138,7 +171,7 @@ namespace _game.Scripts.SpinSystem
             return result;
         }
 
-        private int FindFarSpin(List<int> availableSpinList, List<int> spinResult)
+        private int FindFarSpin(List<int> availableSpinList, List<int> spinResult, out int diff)
         {
             var selectedSpin = -1;
 
@@ -146,7 +179,7 @@ namespace _game.Scripts.SpinSystem
             {
                 var index = Random.Range(0, availableSpinList.Count);
                 selectedSpin = availableSpinList[index];
-                availableSpinList.Remove(selectedSpin);
+                diff = 0;
                 return selectedSpin;
             }
 
@@ -176,11 +209,8 @@ namespace _game.Scripts.SpinSystem
             {
                 Debug.LogException(new Exception("No Spin Found"));
             }
-            else
-            {
-                availableSpinList.Remove(selectedSpin);
-            }
 
+            diff = maxDistance;
             return selectedSpin;
         }
     }
