@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using _game.Scripts.SpinSystem.Data;
 using Sirenix.OdinInspector;
@@ -6,7 +5,6 @@ using UnityEngine;
 
 namespace _game.Scripts.SpinSystem
 {
-    [Serializable]
     public class SpinManager
     {
         private readonly SpinResultGenerator _spinResultGenerator;

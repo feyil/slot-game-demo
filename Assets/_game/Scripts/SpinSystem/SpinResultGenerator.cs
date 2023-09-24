@@ -6,11 +6,10 @@ using Random = UnityEngine.Random;
 
 namespace _game.Scripts.SpinSystem
 {
-    [Serializable]
     public class SpinResultGenerator
     {
         private readonly int _sampleSize = 100;
-        private List<Action> _noneMatchedCountList;
+        private readonly List<Action> _noneMatchedCountList;
         private readonly SpinResultLogHelper _logHelper;
 
         public SpinResultGenerator()

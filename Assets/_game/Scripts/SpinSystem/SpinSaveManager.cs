@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using _game.Scripts.SpinSystem.Data;
 using Sirenix.OdinInspector;
@@ -7,7 +6,6 @@ using UnityEngine;
 
 namespace _game.Scripts.SpinSystem
 {
-    [Serializable]
     public class SpinSaveManager
     {
         private readonly string SPIN_RESULT_PREF_KEY = "spin_result_pref";
