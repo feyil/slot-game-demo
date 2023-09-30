@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _game.Scripts.SlotComponent
 {
@@ -45,10 +47,35 @@ namespace _game.Scripts.SlotComponent
                     stopSequence.Join(tween);
                 }
 
-                stopSequence.OnComplete(() => { onComplete?.Invoke(this); });
+                stopSequence.OnComplete(() =>
+                {
+                    onComplete?.Invoke(this);
+                    ValidateSprites();
+                });
             });
 
             _lastSpinColumnId = spinColumnId;
+        }
+
+        private void ValidateSprites()
+        {
+            for (var index = 0; index < m_itemViewArray.Length; index++)
+            {
+                var itemView = m_itemViewArray[index];
+                var value = itemView.GetNormalized();
+
+                if (value < 0.5f)
+                {
+                    // Top item 0.16
+                    itemView.SetSprite(GetSprite());
+
+                    var middleItem = m_itemViewArray[(index + 1) % m_itemViewArray.Length];
+                    middleItem.SetSprite(GetSprite(-1));
+
+                    var bottomItem = m_itemViewArray[(index + 2) % m_itemViewArray.Length];
+                    bottomItem.SetSprite(GetSprite(-2));
+                }
+            }
         }
 
         private Tween AnimateItemView(ItemView itemView, float duration, int loopCount, float spinTargetItemOffset = 0f)
