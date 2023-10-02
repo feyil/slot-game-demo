@@ -1,115 +1,153 @@
 using System;
-using _game.Scripts.Utility;
+using System.Linq;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _game.Scripts.SlotComponent
 {
-    [Serializable]
-    public class ColumnAnimationConfig
-    {
-        public int StartSpinLoopCount = 5;
-        public float StartSpinDuration = 1f;
-        public int StopSpinLoopCount = 1;
-        public float StopSpinDuration = 0.5f;
-        public AnimationCurve StopCurve;
-    }
-
-    public enum ColumnAnimationConfigId
-    {
-        Fast = 0,
-        Normal = 1,
-        Slow = 2
-    }
-
     public class SpinColumnController : MonoBehaviour
     {
-        [SerializeField] private float m_itemHeight;
-        [SerializeField] private RectTransform m_rectTransform;
         [SerializeField] private ItemView[] m_itemViewArray;
+        [SerializeField] private ItemSpriteData[] m_itemSpriteDataArray;
 
-        [SerializeField] private Sprite[] m_itemSpriteArray;
-        [SerializeField] private Sprite[] m_itemBlurredArray;
-        
-        private float _spinFillAmount;
-        private int _itemCount;
-        private int _lastSpinItemIndex = -1;
+        private bool _isBlurred;
+        private int _spriteIndex = -1;
+        private SpinColumnId _lastSpinColumnId;
 
-        [Button]
-        public void Spin(SpinColumnId spinColumnId, Action<SpinColumnController> onComplete, ColumnAnimationConfig config, float delay = 0f)
+        public void Spin(SpinColumnId spinColumnId, Action<SpinColumnController> onComplete,
+            ColumnAnimationConfig animationConfig, float delay)
         {
-            var singleLoopLength = GetSingleLoopLength();
+            var startSequence = DOTween.Sequence();
+            startSequence.AppendInterval(delay);
+            startSequence.AppendCallback(() => { _isBlurred = true; });
 
-            var step = GetStep();
-            var spinDeltaAmount = 0f;
-            var lastItemIndex = _lastSpinItemIndex == -1 ? m_itemViewArray.Length - 1 : _lastSpinItemIndex;
-            var lastNormalizedPosition = 0f;
-            var isResetTime = false;
-            var itemSpriteIndex = 0;
-
-            void ResetLoopVariables()
+            var zeroPointOffset = -GetTargetItemOffset(_lastSpinColumnId);
+            foreach (var itemView in m_itemViewArray)
             {
-                spinDeltaAmount = 0f;
-                isResetTime = true;
-                lastItemIndex = _lastSpinItemIndex == -1 ? m_itemViewArray.Length - 1 : _lastSpinItemIndex;
-                lastNormalizedPosition = 0f;
-                isResetTime = false;
-                itemSpriteIndex = 0;
+                var tween = AnimateItemView(itemView, animationConfig.StartSpinDuration,
+                        animationConfig.StartSpinLoopCount, zeroPointOffset)
+                    .SetEase(Ease.Linear).OnStart(() => { itemView.SetSprite(m_itemSpriteDataArray, _isBlurred); });
+                startSequence.Join(tween);
             }
 
-            var targetValue1 = _spinFillAmount + GetRemainingDistanceToZeroPoint(_spinFillAmount) +
-                               config.StartSpinLoopCount * singleLoopLength;
-            var startTween = DOTween.To(() => _spinFillAmount, (value) =>
+            startSequence.OnComplete(() =>
             {
-                var lastSpinPosition = _spinFillAmount;
+                var stopSequence = DOTween.Sequence();
+                stopSequence.AppendCallback(() => { _isBlurred = false; });
 
-                _spinFillAmount = value;
-                SetNormalized(_spinFillAmount);
+                var targetItemOffset = GetTargetItemOffset(spinColumnId);
+                foreach (var itemView in m_itemViewArray)
+                {
+                    var tween = AnimateItemView(itemView, animationConfig.StopSpinDuration,
+                            animationConfig.StopSpinLoopCount, targetItemOffset)
+                        .SetEase(animationConfig.StopCurve)
+                        .OnStart(() => { itemView.SetSprite(m_itemSpriteDataArray, _isBlurred); });
+                    stopSequence.Join(tween);
+                }
 
-                HandleItemLoop(step, lastSpinPosition, true, ref itemSpriteIndex, ref lastItemIndex,
-                    ref spinDeltaAmount,
-                    ref isResetTime,
-                    ref lastNormalizedPosition);
-            }, targetValue1, config.StartSpinDuration).SetEase(Ease.Linear);
+                stopSequence.OnComplete(() =>
+                {
+                    onComplete?.Invoke(this);
+                    ValidateSprites();
+                });
+            });
 
-            var targetValue2 = targetValue1 + GetRemainingDistanceToZeroPoint(targetValue1) +
-                               +config.StopSpinLoopCount * singleLoopLength + GetSpinFillAmount(spinColumnId);
-
-            var stopTween = DOTween.To(() => _spinFillAmount, (value) =>
-            {
-                var lastSpinPosition = _spinFillAmount;
-
-                _spinFillAmount = value;
-                SetNormalized(_spinFillAmount);
-
-                HandleItemLoop(step, lastSpinPosition, false, ref itemSpriteIndex, ref lastItemIndex,
-                    ref spinDeltaAmount,
-                    ref isResetTime,
-                    ref lastNormalizedPosition);
-            }, targetValue2, config.StopSpinDuration).SetEase(config.StopCurve);
-
-            var seq = DOTween.Sequence();
-            seq.AppendInterval(delay);
-            seq.Append(startTween);
-            seq.AppendCallback(ResetLoopVariables);
-            seq.Append(stopTween);
-            seq.OnComplete(() => { onComplete?.Invoke(this); });
+            _lastSpinColumnId = spinColumnId;
         }
 
-        private float GetRemainingDistanceToZeroPoint(float currentFill)
+        private void ValidateSprites()
         {
-            var singleLoopLength = GetSingleLoopLength();
-            return Mathf.Ceil(currentFill / singleLoopLength) * singleLoopLength - currentFill;
+            for (var index = 0; index < m_itemViewArray.Length; index++)
+            {
+                var itemView = m_itemViewArray[index];
+                var value = itemView.GetNormalized();
+
+                if (value < 0.5f)
+                {
+                    // Top item 0.16
+                    itemView.SetSprite(GetSprite());
+
+                    var middleItem = m_itemViewArray[(index + 1) % m_itemViewArray.Length];
+                    middleItem.SetSprite(GetSprite(-1));
+
+                    var bottomItem = m_itemViewArray[(index + 2) % m_itemViewArray.Length];
+                    bottomItem.SetSprite(GetSprite(-2));
+                }
+            }
         }
 
-        private float GetSingleLoopLength()
+        private Tween AnimateItemView(ItemView itemView, float duration, int loopCount, float spinTargetItemOffset = 0f)
         {
-            return GetStep() * m_itemSpriteArray.Length;
+            var currentNormalizedValue = itemView.GetNormalized();
+            var targetLoopValue = GetSingleLoop() * loopCount +
+                                  spinTargetItemOffset;
+
+            var targetValue = currentNormalizedValue + targetLoopValue;
+
+            var loopCounter = 1;
+            return DOTween.To(itemView.GetNormalized, (value) =>
+                {
+                    itemView.SetNormalized(value);
+
+                    // Forward handling
+                    while (value > loopCounter)
+                    {
+                        loopCounter++;
+                        IncreaseSpriteIndex();
+
+                        var sprite = GetSprite();
+                        itemView.SetSprite(sprite);
+                    }
+
+                    // Backward handling
+                    while (value < loopCounter - 1)
+                    {
+                        loopCounter--;
+                        DecreaseSpriteIndex();
+
+                        var sprite = GetSprite(-2);
+                        itemView.SetSprite(sprite);
+                    }
+                }, targetValue,
+                duration);
+        }
+
+        private float GetStep()
+        {
+            return 1f / 3;
+        }
+
+        private float GetSingleLoop()
+        {
+            return 1f + GetStep() * 2;
+        }
+
+        private void IncreaseSpriteIndex()
+        {
+            _spriteIndex++;
+        }
+
+        private void DecreaseSpriteIndex()
+        {
+            _spriteIndex--;
+        }
+
+        private Sprite GetSprite(int offset = 0)
+        {
+            var index = _spriteIndex + offset;
+            if (index < 0)
+            {
+                index = m_itemSpriteDataArray.Length + index;
+            }
+
+            var data = m_itemSpriteDataArray[index % m_itemSpriteDataArray.Length];
+            return _isBlurred ? data.Blurred : data.Default;
         }
 
         [Button]
-        private float GetSpinFillAmount(SpinColumnId spinColumnId)
+        private float GetTargetItemOffset(SpinColumnId spinColumnId)
         {
             switch (spinColumnId)
             {
@@ -127,77 +165,6 @@ namespace _game.Scripts.SlotComponent
 
             Debug.LogException(new Exception("SpinColumnId doesnt match anything"));
             return 0;
-        }
-
-        private void HandleItemLoop(float step, float lastSpinPosition, bool isBlurred, ref int itemSpriteIndex,
-            ref int lastItemIndex,
-            ref float spinDeltaAmount,
-            ref bool isResetTime, ref float lastNormalizedPosition)
-        {
-            spinDeltaAmount += Mathf.Abs(lastSpinPosition - _spinFillAmount);
-
-            var offsetFromCenter = step / 2;
-            if (spinDeltaAmount >= offsetFromCenter && lastItemIndex >= 0)
-            {
-                spinDeltaAmount -= step;
-
-                var lastItem = m_itemViewArray[lastItemIndex];
-                var lastItemPosition = lastItem.GetPosition();
-
-                lastItem.SetPositionY(lastItemPosition.y + m_itemHeight * 3);
-                lastItemIndex -= 1;
-                _lastSpinItemIndex = lastItemIndex;
-
-                if (isBlurred)
-                {
-                    var itemBlurredSprite = m_itemBlurredArray[itemSpriteIndex % m_itemBlurredArray.Length];
-                    lastItem.SetSprite(itemBlurredSprite);
-                }
-                else
-                {
-                    var itemSprite = m_itemSpriteArray[itemSpriteIndex % m_itemSpriteArray.Length];
-                    lastItem.SetSprite(itemSprite);
-                }
-
-                itemSpriteIndex++;
-            }
-
-            var currentNormalizedPosition = GetNormalizedPosition();
-            isResetTime = currentNormalizedPosition - lastNormalizedPosition <= 0f;
-            lastNormalizedPosition = currentNormalizedPosition;
-
-            // Loop complete Reset Time
-            if (lastItemIndex < 0 && GetNormalizedPosition() >= 0 && isResetTime)
-            {
-                lastItemIndex = m_itemViewArray.Length - 1;
-                isResetTime = false;
-
-                for (var index = 0; index < m_itemViewArray.Length; index++)
-                {
-                    var itemView = m_itemViewArray[index];
-                    itemView.SetPositionY(m_itemHeight * (1 - index));
-                }
-            }
-        }
-
-        [Button]
-        private void SetNormalized(float t)
-        {
-            t -= Mathf.Floor(t);
-            var posY = Mathf.Lerp(0, -m_itemHeight * 3, t);
-            m_rectTransform.SetAnchorPosY(posY);
-        }
-
-        [Button]
-        private float GetNormalizedPosition()
-        {
-            return Mathf.InverseLerp(0, -m_itemHeight * 3, m_rectTransform.anchoredPosition.y);
-        }
-
-        [Button]
-        private float GetStep()
-        {
-            return 1f / m_itemViewArray.Length;
         }
     }
 }
